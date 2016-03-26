@@ -4,9 +4,10 @@
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Dialog),
-    box_size(20)
+    box_size(0)
 {
     ui->setupUi(this);
+    box_size = ui->verticalSlider->value();
 
 }
 
