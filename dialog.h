@@ -10,8 +10,6 @@
 #include <QPainter>
 
 #include "map.h"
-#include "search.h"
-#include "heap.h"
 
 namespace Ui {
 class Dialog;
@@ -44,6 +42,7 @@ private:
     Ui::Dialog *ui;
     QString input;
     Map Dfs,Bfs,BestFirst;
+
     int s_x,s_y,e_x,e_y;
     int box_size;
 

@@ -15,11 +15,11 @@ TEMPLATE = app
 SOURCES += main.cpp\
         dialog.cpp \
     map.cpp \
-    heap.cpp
+    m_point.cpp
 
 HEADERS  += dialog.h \
     map.h \
-    heap.h
+    m_point.h
 
 FORMS    += dialog.ui
 

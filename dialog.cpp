@@ -114,7 +114,7 @@ void Dialog::paintEvent(QPaintEvent *event)
 
 void Dialog::on_calc_clicked()
 {
-    bool dfs,bfs,bestfirst;
+    bool dfs,bfs,bestfirst,a,a_star;
     if(ui->textEdit_map_input->toPlainText() == "" || ui->start_x->text() == "" || ui->start_y->text() == "" || ui->end_x->text() == "" || ui->end_y->text() == "") return;
     s_x = ui->start_x->text().toInt();
     s_y = ui->start_y->text().toInt();
@@ -124,6 +124,7 @@ void Dialog::on_calc_clicked()
     Bfs.set(ui->textEdit_map_input->toPlainText());
     Dfs.set(ui->textEdit_map_input->toPlainText());
     BestFirst.set(ui->textEdit_map_input->toPlainText());
+
     dfs = Dfs.find_road(s_x,s_y,e_x,e_y,Map::method_DFS);
     bfs = Bfs.find_road(s_x,s_y,e_x,e_y,Map::method_BFS);
     bestfirst = BestFirst.find_road(s_x,s_y,e_x,e_y,Map::method_BestFirst);

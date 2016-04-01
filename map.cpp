@@ -8,7 +8,6 @@ Map::Map() :
     width(0),
     height(0),
     valid(false),
-    b_mem(0),
     visit_step(0)
 {
 }
@@ -41,7 +40,7 @@ void Map::set(int w, int h)
 void Map::set(int w, int h, QString s)
 {
     _allocate_map(w,h);
-    s = s.remove(' ').remove('\n').remove('\t');
+    s = s.remove(' ').remove('\n').remove('\t').remove(',').remove('}').remove('{').remove('\'').remove(';');
     for(int i = 0 ; i < height ; ++i)
     {
         for(int j = 0 ; j < width ; ++j)
@@ -60,7 +59,7 @@ void Map::set(int w, int h, QString s)
 void Map::set(QString s)
 {
     int w,h;
-    s = s.remove(' ').remove('\t');
+    s = s.remove(' ').remove('\t').remove(',').remove('}').remove('{').remove('\'').remove(';');
     w = s.indexOf('\n');
     h = s.length()/w;
     s.remove('\n');
@@ -135,14 +134,14 @@ bool Map::find_road(int sx, int sy, int ex, int ey,int method)
     }
     else if(method == method_BestFirst)
     {
-        b_mem.clear();
+        while(!pp_mem.empty()) pp_mem.pop();
         int ky = (Ex-Sx)*(Ex-Sx)+(Ey-Sy)*(Ey-Sy);
-        b_mem.push(QPoint(Sx,Sy),ky);
+        pp_mem.push(M_Point(QPoint(Sx,Sy),ky));
     }
     QPoint current_point;
     visit_step = 0;
 
-    while(p_mem.size() != 0 || b_mem.size()!=0)
+    while(!p_mem.empty() || !pp_mem.empty())
     {
         if(method == method_BFS)
         {
@@ -155,8 +154,8 @@ bool Map::find_road(int sx, int sy, int ex, int ey,int method)
         }
         else if(method == method_BestFirst)
         {
-            current_point = b_mem.top_value();
-            b_mem.pop();
+            current_point = pp_mem.top().get_Point();
+            pp_mem.pop();
         }
 
         state[current_point.y()][current_point.x()] = state_visit;
@@ -285,14 +284,9 @@ void Map::_visit_append(const QPoint ch, const QPoint par,int method)
     if(method == method_BestFirst)
     {
         int ky = disx*disx+disy*disy;
-        b_mem.push(ch,ky);
+        pp_mem.push(M_Point(ch,ky));
     }
     else p_mem.append(ch);
     state[ch.y()][ch.x()] = state_visit;
     parent[ch.y()][ch.x()] = par;
-}
-
-bool Map::_best_First(int sx, int sy, int ex, int ey)
-{
-
 }
