@@ -38,13 +38,19 @@ private slots:
 
     void on_check_best_clicked();
 
+    void on_check_a_clicked();
+
+    void on_check_a_star_clicked();
+
 private:
     Ui::Dialog *ui;
     QString input;
-    Map Dfs,Bfs,BestFirst;
+    Map Dfs,Bfs,BestFirst,A,A_Star;
 
     int s_x,s_y,e_x,e_y;
     int box_size;
+
+    void _draw_map(const Map&map,QPainter* painter);
 
 
 };

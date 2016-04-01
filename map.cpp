@@ -1,6 +1,6 @@
 #include "map.h"
 
-Map::Map() :
+Map::Map(int mtd) :
     value(nullptr),
     state(nullptr),
     parent(nullptr),
@@ -8,7 +8,8 @@ Map::Map() :
     width(0),
     height(0),
     valid(false),
-    visit_step(0)
+    visit_step(0),
+    method(mtd)
 {
 }
 
@@ -118,7 +119,12 @@ bool Map::getValid() const
     return valid;
 }
 
-bool Map::find_road(int sx, int sy, int ex, int ey,int method)
+int Map::getMethod() const
+{
+    return method;
+}
+
+bool Map::find_road(int sx, int sy, int ex, int ey)
 {
     ++sx;++sy;++ex;++ey;            // inside of wall
     //invalid start/end point
@@ -127,36 +133,62 @@ bool Map::find_road(int sx, int sy, int ex, int ey,int method)
 
     Sx = sx;Sy = sy;Ex = ex;Ey = ey;
 
-    if(method == method_BFS ||method ==method_DFS)
-    {
-      p_mem.clear();
-      p_mem.append(QPoint(sx,sy));    // insert first point to backward
-    }
-    else if(method == method_BestFirst)
-    {
+
+    switch (method) {
+    case method_BFS:
+    case method_DFS:
+        p_mem.clear();
+        p_mem.append(QPoint(sx,sy));    // insert first point to backward
+        break;
+
+    case method_BestFirst:
+    case method_A:
+    case method_A_Star:
         while(!pp_mem.empty()) pp_mem.pop();
         int ky = (Ex-Sx)*(Ex-Sx)+(Ey-Sy)*(Ey-Sy);
-        pp_mem.push(M_Point(QPoint(Sx,Sy),ky));
+
+        switch(method)
+        {
+        case method_BestFirst:
+            pp_mem.push(M_Point(QPoint(Sx,Sy),ky));
+            break;
+        case method_A:
+            pp_mem.push(M_Point(QPoint(Sx,Sy),ky,0));
+            break;
+        case method_A_Star:
+            pp_mem.push(M_Point(QPoint(Sx,Sy),ky,0));
+            break;
+        }
+        break;
+
     }
+
     QPoint current_point;
-    visit_step = 0;
 
     while(!p_mem.empty() || !pp_mem.empty())
     {
-        if(method == method_BFS)
+
+        switch(method)
         {
+        case method_BFS:
             current_point = p_mem.front();
             p_mem.pop_front();
-        }
-        else if(method == method_DFS)
-        {
+            break;
+
+        case method_DFS:
             current_point = p_mem.back();
-        }
-        else if(method == method_BestFirst)
-        {
-            current_point = pp_mem.top().get_Point();
+            break;
+
+        case method_BestFirst:
+        case method_A:
+        case method_A_Star:
+            current_point = pp_mem.top().getPoint();
+            visit_step = pp_mem.top().getStep();
             pp_mem.pop();
+            break;
         }
+
+
 
         state[current_point.y()][current_point.x()] = state_visit;
         if(current_point.x() == ex && current_point.y() == ey) break;
@@ -165,54 +197,56 @@ bool Map::find_road(int sx, int sy, int ex, int ey,int method)
         // find up side
         if(value[current_point.y()-1][current_point.x()] == value_road && state[current_point.y()-1][current_point.x()] == state_unvisit)
         {
-            _visit_append(QPoint(current_point.x(),current_point.y()-1),current_point,method);
+            _visit_append(QPoint(current_point.x(),current_point.y()-1),current_point);
             if(method == method_DFS) continue;
         }
         // find right-up side
         if(value[current_point.y()-1][current_point.x()+1] == value_road && state[current_point.y()-1][current_point.x()+1] == state_unvisit)
         {
-            _visit_append(QPoint(current_point.x()+1,current_point.y()-1),current_point,method);
+            _visit_append(QPoint(current_point.x()+1,current_point.y()-1),current_point);
             if(method == method_DFS) continue;
         }
         // find right side
         if(value[current_point.y()][current_point.x()+1] == value_road && state[current_point.y()][current_point.x()+1] == state_unvisit)
         {
-            _visit_append(QPoint(current_point.x()+1,current_point.y()),current_point,method);
+            _visit_append(QPoint(current_point.x()+1,current_point.y()),current_point);
             if(method == method_DFS) continue;
         }
         // find down-right side
         if(value[current_point.y()+1][current_point.x()+1] == value_road && state[current_point.y()+1][current_point.x()+1] == state_unvisit)
         {
-            _visit_append(QPoint(current_point.x()+1,current_point.y()+1),current_point,method);
+            _visit_append(QPoint(current_point.x()+1,current_point.y()+1),current_point);
             if(method == method_DFS) continue;
         }
         // find down side
         if(value[current_point.y()+1][current_point.x()] == value_road && state[current_point.y()+1][current_point.x()] == state_unvisit)
         {
-            _visit_append(QPoint(current_point.x(),current_point.y()+1),current_point,method);
+            _visit_append(QPoint(current_point.x(),current_point.y()+1),current_point);
             if(method == method_DFS) continue;
         }
         // find down-left side
         if(value[current_point.y()+1][current_point.x()-1] == value_road && state[current_point.y()+1][current_point.x()-1] == state_unvisit)
         {
-            _visit_append(QPoint(current_point.x()-1,current_point.y()+1),current_point,method);
+            _visit_append(QPoint(current_point.x()-1,current_point.y()+1),current_point);
             if(method == method_DFS) continue;
         }
         // find left side
         if(value[current_point.y()][current_point.x()-1] == value_road && state[current_point.y()][current_point.x()-1] == state_unvisit)
         {
-            _visit_append(QPoint(current_point.x()-1,current_point.y()),current_point,method);
+            _visit_append(QPoint(current_point.x()-1,current_point.y()),current_point);
             if(method == method_DFS) continue;
         }
         // find up-left side
         if(value[current_point.y()-1][current_point.x()-1] == value_road && state[current_point.y()-1][current_point.x()-1] == state_unvisit)
         {
-            _visit_append(QPoint(current_point.x()-1,current_point.y()-1),current_point,method);
+            _visit_append(QPoint(current_point.x()-1,current_point.y()-1),current_point);
             if(method == method_DFS) continue;
         }
+
         if(method == method_DFS) p_mem.pop_back();
     }
 
+    visit_step = 0;
     // find solution road
     result_step = 0;
     while(true)
@@ -222,6 +256,7 @@ bool Map::find_road(int sx, int sy, int ex, int ey,int method)
         ++result_step;
         current_point = parent[current_point.y()][current_point.x()];
     }
+
     return true;
 }
 
@@ -276,17 +311,36 @@ void Map::_allocate_map(int w, int h)
     valid = true;
 }
 
-void Map::_visit_append(const QPoint ch, const QPoint par,int method)
+void Map::_visit_append(const QPoint ch, const QPoint par)
 {
     int disx,disy;
     disx = ch.x()-Ex;
     disy = ch.y()-Ey;
-    if(method == method_BestFirst)
+
+// what is the best huristic ?
+    int prio = (disx*disx+disy*disy);
+//    prio = sqrt(disx*disx+disy*disy);
+//    prio = abs(ch.x()-Ex) + abs(ch.y()-Ey);
+
+    switch(method)
     {
-        int ky = disx*disx+disy*disy;
-        pp_mem.push(M_Point(ch,ky));
+    case method_BFS:
+    case method_DFS:
+        p_mem.append(ch);
+        break;
+
+    case method_BestFirst:
+        pp_mem.push(M_Point(ch,prio));
+        break;
+
+    case method_A:
+        pp_mem.push(M_Point(ch,prio,(visit_step+1)));
+        break;
+
+    case method_A_Star:
+        pp_mem.push(M_Point(ch,0,(visit_step+1)));
+        break;
     }
-    else p_mem.append(ch);
     state[ch.y()][ch.x()] = state_visit;
     parent[ch.y()][ch.x()] = par;
 }
