@@ -43,6 +43,8 @@ public:
     enum{value_notdef = 0,value_road = 1,value_wall = 2};
     enum{method_None = 0,method_DFS = 1,method_BFS = 2,method_BestFirst = 3,method_A = 4,method_A_Star = 5};
 
+    const int ax[8];
+    const int ay[8];
 
     int getMethod() const;
 

@@ -9,7 +9,9 @@ Map::Map(int mtd) :
     height(0),
     valid(false),
     visit_step(0),
-    method(mtd)
+    method(mtd),
+    ax({0,1,1,1,0,-1,-1,-1}),
+    ay({-1,-1,0,1,1,1,0,-1})
 {
 }
 
@@ -193,54 +195,15 @@ bool Map::find_road(int sx, int sy, int ex, int ey)
         state[current_point.y()][current_point.x()] = state_visit;
         if(current_point.x() == ex && current_point.y() == ey) break;
 
+
         // find 8 way road
-        // find up side
-        if(value[current_point.y()-1][current_point.x()] == value_road && state[current_point.y()-1][current_point.x()] == state_unvisit)
+        for(int i=0;i<8;++i)
         {
-            _visit_append(QPoint(current_point.x(),current_point.y()-1),current_point);
-            if(method == method_DFS) continue;
-        }
-        // find right-up side
-        if(value[current_point.y()-1][current_point.x()+1] == value_road && state[current_point.y()-1][current_point.x()+1] == state_unvisit)
-        {
-            _visit_append(QPoint(current_point.x()+1,current_point.y()-1),current_point);
-            if(method == method_DFS) continue;
-        }
-        // find right side
-        if(value[current_point.y()][current_point.x()+1] == value_road && state[current_point.y()][current_point.x()+1] == state_unvisit)
-        {
-            _visit_append(QPoint(current_point.x()+1,current_point.y()),current_point);
-            if(method == method_DFS) continue;
-        }
-        // find down-right side
-        if(value[current_point.y()+1][current_point.x()+1] == value_road && state[current_point.y()+1][current_point.x()+1] == state_unvisit)
-        {
-            _visit_append(QPoint(current_point.x()+1,current_point.y()+1),current_point);
-            if(method == method_DFS) continue;
-        }
-        // find down side
-        if(value[current_point.y()+1][current_point.x()] == value_road && state[current_point.y()+1][current_point.x()] == state_unvisit)
-        {
-            _visit_append(QPoint(current_point.x(),current_point.y()+1),current_point);
-            if(method == method_DFS) continue;
-        }
-        // find down-left side
-        if(value[current_point.y()+1][current_point.x()-1] == value_road && state[current_point.y()+1][current_point.x()-1] == state_unvisit)
-        {
-            _visit_append(QPoint(current_point.x()-1,current_point.y()+1),current_point);
-            if(method == method_DFS) continue;
-        }
-        // find left side
-        if(value[current_point.y()][current_point.x()-1] == value_road && state[current_point.y()][current_point.x()-1] == state_unvisit)
-        {
-            _visit_append(QPoint(current_point.x()-1,current_point.y()),current_point);
-            if(method == method_DFS) continue;
-        }
-        // find up-left side
-        if(value[current_point.y()-1][current_point.x()-1] == value_road && state[current_point.y()-1][current_point.x()-1] == state_unvisit)
-        {
-            _visit_append(QPoint(current_point.x()-1,current_point.y()-1),current_point);
-            if(method == method_DFS) continue;
+            if(value[current_point.y() + ay[i]][current_point.x() + ax[i]] == value_road && state[current_point.y() + ay[i]][current_point.x() + ax[i]] == state_unvisit)
+            {
+                _visit_append(QPoint(current_point.x() + ax[i],current_point.y() + ay[i]),current_point);
+                if(method == method_DFS) continue;
+            }
         }
 
         if(method == method_DFS) p_mem.pop_back();
